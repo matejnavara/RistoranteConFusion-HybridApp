@@ -34,9 +34,7 @@ export class DishdetailPage {
     this.dish = navParams.get('dish');
     this.favorite = favoriteservice.isFavorite(this.dish.id);
     this.numcomments = this.dish.comments.length;
-    let total = 0;
-    this.dish.comments.forEach(comment => total += comment.rating );
-    this.avgstars = (total/this.numcomments).toFixed(2);
+    this.refreshTotals();
   }
 
   presentActionSheet() {
@@ -79,8 +77,21 @@ export class DishdetailPage {
   }
 
   addComment() {
-     let modal = this.modalCtrl.create(CommentPage);
-     modal.present();
+    let modal = this.modalCtrl.create(CommentPage, {dish: this.dish});
+    modal.onDidDismiss(comment => {
+      if(comment != null){
+        this.dish.comments.push(comment);
+        this.refreshTotals();
+      }   
+    });
+    modal.present();
+  }
+
+  refreshTotals() {
+    this.numcomments = this.dish.comments.length;
+    let total = 0;
+    this.dish.comments.forEach(comment => total += comment.rating );
+    this.avgstars = (total/this.numcomments).toFixed(2);
   }
   
   ionViewDidLoad() {
